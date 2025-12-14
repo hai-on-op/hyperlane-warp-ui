@@ -2,5 +2,22 @@
 # These configs will be merged with the warp routes in the configured registry
 # The input here is typically the output of the Hyperlane CLI warp deploy command
 ---
-tokens: []
+tokens:
+  - addressOrDenom: "0xbdF4A4Cc124d9A83a5774574fcBE45DC5d1f1152"
+    chainName: optimism
+    connections:
+      - token: ethereum|base|0xD605046D24CdaD37Ca2Dff3aa8Ebf254CeEe86d5
+    decimals: 18
+    name: haiAERO
+    standard: EvmHypSynthetic
+    symbol: haiAERO
+  - addressOrDenom: "0xD605046D24CdaD37Ca2Dff3aa8Ebf254CeEe86d5"
+    chainName: base
+    collateralAddressOrDenom: "0x10398AbC267496E49106B07dd6BE13364D10dC71"
+    connections:
+      - token: ethereum|optimism|0xbdF4A4Cc124d9A83a5774574fcBE45DC5d1f1152
+    decimals: 18
+    name: haiAERO
+    standard: EvmHypCollateral
+    symbol: haiAERO
 options: {}
