@@ -15,6 +15,7 @@ import {
 } from '@rainbow-me/rainbowkit/wallets';
 import { PropsWithChildren, useMemo } from 'react';
 import { createClient, fallback, http } from 'viem';
+import { base, optimism } from 'viem/chains';
 import { WagmiProvider, createConfig } from 'wagmi';
 import { APP_NAME } from '../../../consts/app';
 import { config } from '../../../consts/config';
@@ -22,7 +23,13 @@ import { Color } from '../../../styles/Color';
 import { useMultiProvider } from '../../chains/hooks';
 
 function initWagmi(multiProvider: MultiProtocolProvider) {
-  const chains = getWagmiChainConfigs(multiProvider);
+  const appChains = getWagmiChainConfigs(multiProvider);
+  // Wallets use their own connections, often outside the bridge origin.
+  const chains = appChains.map((chain) => {
+    const walletChain =
+      chain.id === base.id ? base : chain.id === optimism.id ? optimism : undefined;
+    return walletChain ? { ...chain, rpcUrls: walletChain.rpcUrls } : chain;
+  });
 
   const connectors = connectorsForWallets(
     [
@@ -39,11 +46,11 @@ function initWagmi(multiProvider: MultiProtocolProvider) {
   );
 
   const wagmiConfig = createConfig({
-    // Splice to make annoying wagmi type happy
-    chains: [chains[0], ...chains.splice(1)],
+    chains: [chains[0], ...chains.slice(1)],
     connectors,
     client({ chain }) {
-      const transport = fallback(chain.rpcUrls.default.http.map((chainHttp) => http(chainHttp)));
+      const appChain = appChains.find((item) => item.id === chain.id) || chain;
+      const transport = fallback(appChain.rpcUrls.default.http.map((chainHttp) => http(chainHttp)));
       return createClient({ chain, transport });
     },
   });

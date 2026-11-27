@@ -86,6 +86,11 @@ export async function assembleChainMetadata(
 
     if (!overridesUrl) return metadata;
 
+    // Both HAI bridge networks have managed browser RPCs. A configured endpoint owns these reads.
+    if (chainName === 'optimism' || chainName === 'base') {
+      return { ...metadata, rpcUrls: [overridesUrl] };
+    }
+
     // Only EVM supports fallback transport, so we are putting the override at the end
     const rpcUrls =
       metadata.protocol === ProtocolType.Ethereum
